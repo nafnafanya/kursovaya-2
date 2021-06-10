@@ -13,7 +13,7 @@ bool IsDebugMode = 1;
 
 char* ReadLine(char* S, int len) { // функция для корректного ввода с клавиатуры русских букв
     cin.clear();                   // Возвращаем cin в 'обычный' режим работы
-    cin.ignore(100, '\n');       // и удаляем значения предыдущего ввода из входного буфера
+    cin.ignore(1000, '\n');       // и удаляем значения предыдущего ввода из входного буфера
     cin.getline(S, len);
     OemToAnsi(S, S);
     return S;
@@ -26,27 +26,42 @@ int ReadNumber() {
     if (cin.fail())                 // Если предыдущее извлечение оказалось неудачным,
     {
         cin.clear();                // То возвращаем cin в 'обычный' режим работы
-        cin.ignore(100, '\n');    // И удаляем значения предыдущего ввода из входного буфера
+        cin.ignore(1000, '\n');    // И удаляем значения предыдущего ввода из входного буфера
         return -1;
     }
     else                            // Если всё хорошо, то возвращаем a
         return a;
 }
 
-
-struct FlightItem { // Структура для элемента списка 
+class FlightItem {
+private:
+    FlightItem* Adr;
+public:
     int Id;         // Уникальный номер 
     char Name[20];  // Рейс
     char Time[20];
     char City[20];
     char Airline[20];
     char Status[20];
-    FlightItem* Adr;   // Адресное поле
+    
+    void WriteConItem(FlightItem* Item, int Number);
+    void WriteConItem(FlightItem Item, int Number);
+    void PrintFlightsList(FlightItem* Item);
+    unsigned LengthList(FlightItem* Beg);
+    void ChangeFlightsItem(FlightItem* Beg);
+    FlightItem* AddNewFlightItemFromFile(FlightItem*& Beg, FlightItem FlightFromFile);
+    FlightItem* AddFlightItem(FlightItem*& Beg, int ItemIndex);
+    FlightItem* AddFlightItemToBegin(FlightItem*& Beg);
+    FlightItem* AddFlightItemToEnd(FlightItem*& Beg);
+    void DeleteFlightsList(FlightItem*& Beg);
+    bool SaveListOfFlightsToTextFile(string FileName, FlightItem* Data);
+    FlightItem* ReadListOfFlightsFromTextFile(string FileName);
+    bool  SaveDataToTextFile(string FileName);
 };
 
 FlightItem* Flights;
 
-void WriteConItem(FlightItem* Item, int Number) { // Вывод данных рейса на экран
+void FlightItem::WriteConItem(FlightItem* Item, int Number) { // Вывод данных рейса на экран
     if (IsDebugMode)
     {
         cout << setw(1) << Item->Id << '.'; // Идентификатор элемента в базе данных
@@ -58,7 +73,7 @@ void WriteConItem(FlightItem* Item, int Number) { // Вывод данных р�
     cout << setw(12) << "Рейс: " << Item->Name << endl;
 }
 
-void WriteConItem(FlightItem Item, int Number) {
+void FlightItem::WriteConItem(FlightItem Item, int Number) {
     if (IsDebugMode)
     {
         cout << setw(1) << Item.Id << '.'; // Идентификатор элемента в базе данных
@@ -70,7 +85,7 @@ void WriteConItem(FlightItem Item, int Number) {
     cout << setw(12) << "Рейс: " << Item.Name << endl;
 }
 
-void PrintFlightsList(FlightItem* Item) { //Вывод списка предметов в консоль
+void FlightItem::PrintFlightsList(FlightItem* Item) { //Вывод списка предметов в консоль
     // Сохраним в переменную Curr адрес первого элемента списка
     FlightItem* Curr = Item;
     int num = 1;// Переменная для сквозной нумерации элементов списка
@@ -90,7 +105,7 @@ void PrintFlightsList(FlightItem* Item) { //Вывод списка предме
     }
 }
 
-unsigned LengthList(FlightItem* Beg) {
+unsigned FlightItem::LengthList(FlightItem* Beg) {
     unsigned Length = 0;
     while (Beg) {
         Length++;
@@ -99,7 +114,7 @@ unsigned LengthList(FlightItem* Beg) {
     return Length;
 }
 
-void ChangeFlightsItem(FlightItem* Beg) { //Изменение предмета из списка 
+void FlightItem::ChangeFlightsItem(FlightItem* Beg) { //Изменение предмета из списка 
     // Сохраним адрес начала списка
     FlightItem* Curr = Beg;
     if (Curr != 0) {
@@ -142,7 +157,7 @@ void ChangeFlightsItem(FlightItem* Beg) { //Изменение предмета 
     }
 }
 
-FlightItem* AddNewFlightItemFromFile(FlightItem*& Beg, FlightItem FlightFromFile) {
+FlightItem* FlightItem::AddNewFlightItemFromFile(FlightItem*& Beg, FlightItem FlightFromFile) {
     int Length = LengthList(Beg);
     int ItemIndex = Length;
     FlightItem* Item = new FlightItem;
@@ -165,9 +180,10 @@ FlightItem* AddNewFlightItemFromFile(FlightItem*& Beg, FlightItem FlightFromFile
     Item->Adr = PredItem->Adr;
     PredItem->Adr = Item;
     return Item;
+    delete Item;
 }
 
-FlightItem* AddFlightItem(FlightItem*& Beg, int ItemIndex) {
+FlightItem* FlightItem::AddFlightItem(FlightItem*& Beg, int ItemIndex) {
     int Length = LengthList(Beg);
     if ((ItemIndex >= 0 && ItemIndex <= Length) || !Beg) {
         FlightItem* Item = new FlightItem;
@@ -204,15 +220,15 @@ FlightItem* AddFlightItem(FlightItem*& Beg, int ItemIndex) {
     }
 }
 
-FlightItem* AddFlightItemToBegin(FlightItem*& Beg) {       //???
+FlightItem* FlightItem::AddFlightItemToBegin(FlightItem*& Beg) {       //???
     return AddFlightItem(Beg, 0);
 }
 
-FlightItem* AddFlightItemToEnd(FlightItem*& Beg) {
+FlightItem* FlightItem::AddFlightItemToEnd(FlightItem*& Beg) {
     return AddFlightItem(Beg, LengthList(Beg));
 }
 
-void DeleteFlightsList(FlightItem*& Beg) { 
+void FlightItem::DeleteFlightsList(FlightItem*& Beg) { 
     FlightItem* Next; // Указатель на следующий элемент списка
     // Начинаем с начала списка
     if (Beg != 0) {
@@ -236,7 +252,7 @@ void DeleteFlightsList(FlightItem*& Beg) {
         cout << "Ошибка удаления списка рейсов. Список рейсов ещё не создан!\n";
     }
 }
-bool SaveListOfFlightsToTextFile(string FileName, FlightItem* Data) {
+bool FlightItem::SaveListOfFlightsToTextFile(string FileName, FlightItem* Data) {
     if (Data != 0) {
         FlightItem SingleFlight; // Для одиночного элемента списка
         ofstream File(FileName, ios::out | ios::binary); // Создали поток для записи в файл в двоичном режиме
@@ -271,7 +287,8 @@ bool SaveListOfFlightsToTextFile(string FileName, FlightItem* Data) {
     }
     return 0;
 }
-FlightItem* ReadListOfFlightsFromTextFile(string FileName) {
+
+FlightItem* FlightItem::ReadListOfFlightsFromTextFile(string FileName) {
     FlightItem* result = 0;
     ifstream File(FileName, ios::in | ios::binary);   // Создали поток чтения файла в двоичном режиме
     if (!File)  //  Проверили удалось ли открыть файл
