@@ -3,42 +3,43 @@
 
 void menu(int mode) {
     system("cls"); // Очистка экрана
+    FlightItem flight1;
     switch (mode)
     {
     case 1:
     {
-        PrintFlightsList(Flights);
+        flight1.PrintFlightsList(Flights);
     }
     break;
     case 2:
     {
-        ChangeFlightsItem(Flights);
+       flight1.ChangeFlightsItem(Flights);
     }
     break;
     case 3:
     {
-        AddFlightItemToBegin(Flights);
+        flight1.AddFlightItemToBegin(Flights);
     }
     break;
     case 4:
     {
-        AddFlightItemToEnd(Flights);
+        flight1.AddFlightItemToEnd(Flights);
     }
     break;
     case 5:
     {
-        SaveListOfFlightsToTextFile("Flights.txt", Flights);
+        flight1.SaveListOfFlightsToTextFile("Flights.txt", Flights);
     }
     break;
     case 6:
     {
-        Flights = ReadListOfFlightsFromTextFile("Flights.txt");
-        PrintFlightsList(Flights);
+        Flights = flight1.ReadListOfFlightsFromTextFile("Flights.txt");
+        flight1.PrintFlightsList(Flights);
     }
-    break;
+    break; 
     case 7:
     {
-        DeleteFlightsList(Flights);
+        flight1.DeleteFlightsList(Flights);
     }
     break;
     }
